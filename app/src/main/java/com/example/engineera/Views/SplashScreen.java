@@ -1,10 +1,12 @@
-package com.example.engineera;
+package com.example.engineera.Views;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+
+import com.example.engineera.R;
 
 public class SplashScreen extends AppCompatActivity {
 
