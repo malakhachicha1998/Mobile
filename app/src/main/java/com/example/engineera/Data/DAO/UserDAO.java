@@ -12,7 +12,7 @@ public interface UserDAO {
     @Insert
     void insertOne(User user);
 
-    @Query("SELECT * FROM USER_TABLE WHERE email LIKE :email AND password LIKE :password")
+    @Query("SELECT * FROM user WHERE email = :email AND password = :password")
     User getUser(String email, String password);
 
 }

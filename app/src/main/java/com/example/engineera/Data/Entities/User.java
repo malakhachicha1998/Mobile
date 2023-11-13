@@ -4,14 +4,19 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
-@Entity(tableName= "user_table")
+@Entity(tableName= "user")
 public class User {
     @PrimaryKey(autoGenerate = true)
     private int id;
-    @ColumnInfo(name = "email")
     private String email;
-    @ColumnInfo(name = "password")
     private String password;
+
+    public User() {
+
+    }
+
+    public User(String email, String password) {
+    }
 
     public int getId() {
         return id;
@@ -31,6 +36,14 @@ public class User {
 
     public String getPassword() {
         return password;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                '}';
     }
 
     public void setPassword(String password) {
