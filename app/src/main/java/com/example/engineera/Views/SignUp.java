@@ -3,9 +3,11 @@ package com.example.engineera.Views;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,6 +23,7 @@ public class SignUp extends AppCompatActivity {
     Button btnregister;
     User user;
     UserRepository userRepository;
+    EditText emailEditText, passwordEditText;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,29 +36,79 @@ public class SignUp extends AppCompatActivity {
                 }
                 );
         btnregister=findViewById(R.id.services);
-        UserDAO userDAO= EngineeraDB.getAppDatabase(this).userDao();
-        userRepository= new UserRepository(userDAO);
+        emailEditText=findViewById(R.id.textemail);
+        passwordEditText=findViewById(R.id.textpassword);
 
         btnregister.setOnClickListener(e ->
+
                 {
-                    user= new User();
-                    user.setEmail("aaaaaaaaaaa");
-                    user.setPassword("bbbbbbbbbb");
-                    /*
-                    Toast.makeText(this,"Votre compte a été créé", Toast.LENGTH_SHORT).show();
-                    Intent intent=new Intent(this,SignIn.class);
-                    startActivity(intent);
-                     */
-                signUp(user);
+                    String email=emailEditText.getText().toString().trim();
+                    String password=passwordEditText.getText().toString().trim();
+                    if (email.isEmpty() && password.isEmpty())
+                    {
+                        Toast.makeText(this, "Email ou mot de passe invalide", Toast.LENGTH_SHORT).show();
+                    }
+                    else
+                    {
+                        new CheckEmailTask().execute(email, password);
+                    }
                 }
         );
 
     }
-    private void signUp(User user){
-        Log.d("User in sign up",user.toString());
-        userRepository.signUp(user.getEmail(),user.getPassword());
-        Log.d("user created",userRepository.signIn(user.getEmail(), user.getPassword()).toString());
-        Toast.makeText(this, "User created", Toast.LENGTH_SHORT).show();
+    private class CheckEmailTask extends AsyncTask<String, Void, Boolean> {
+        private String[] params;
+        @Override
+        protected Boolean doInBackground(String... params) {
+            this.params = params; // Stored the parameters
+            String email = params[0];
+            String password = params[1];
 
+            EngineeraDB userDatabase = EngineeraDB.getAppDatabase(getApplicationContext());
+            UserDAO userDao = userDatabase.userDao();
+
+            // Check if the email is already registered
+            User existingUser = userDao.getUserByEmail(email);
+
+            return existingUser == null;
+        }
+
+        @Override
+        protected void onPostExecute(Boolean isEmailAvailable) {
+            if (isEmailAvailable) {
+                // Email is not registered, proceed with signup
+                new SignUpTask().execute(params);
+            } else {
+                // Email is already registered
+                Toast.makeText(SignUp.this, "Email already registered", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+    private class SignUpTask extends AsyncTask<String, Void, Void> {
+        @Override
+        protected Void doInBackground(String... params) {
+            String email = params[0];
+            String password = params[1];
+
+            EngineeraDB userDatabase = EngineeraDB.getAppDatabase(getApplicationContext());
+            UserDAO userDao = userDatabase.userDao();
+
+            // Create a new user and insert into the database
+            User newUser = new User(email, password);
+            userDao.insertOne(newUser);
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            // Signup successful
+            Toast.makeText(SignUp.this, "Signup successful", Toast.LENGTH_SHORT).show();
+
+            // Navigate to MainActivity or perform any other post-signup actions
+            Intent intent = new Intent(SignUp.this, SignIn.class);
+            startActivity(intent);
+            finish();
+        }
     }
 }

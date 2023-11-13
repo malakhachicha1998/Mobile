@@ -16,7 +16,7 @@ public class UserRepository {
     }
     public void signIn (User user)
     {
-        new SignInTask().execute(user);
+        //new SignInTask().execute(user);
     }
     private static class SignInTask extends AsyncTask<String,Void,User>
     {
