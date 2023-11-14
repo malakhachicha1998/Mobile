@@ -67,7 +67,8 @@
             android:layout_height="wrap_content"
             android:drawableLeft="@drawable/baseline_key_24"
             android:hint="Entrez votre mot de passe"
-            android:inputType="textPassword"/>
+            android:inputType="textPassword"
+            android:id="@+id/textconfirmpassword"/>
     </com.google.android.material.textfield.TextInputLayout>
 
     <Button

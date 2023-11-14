@@ -18,12 +18,14 @@ import com.example.engineera.Data.Repositories.UserRepository;
 import com.example.engineera.R;
 import com.example.engineera.Views.SignIn;
 
+import java.util.regex.Pattern;
+
 public class SignUp extends AppCompatActivity {
     TextView btn;
     Button btnregister;
     User user;
     UserRepository userRepository;
-    EditText emailEditText, passwordEditText;
+    EditText emailEditText, passwordEditText, confirmPasswordText;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,13 +40,15 @@ public class SignUp extends AppCompatActivity {
         btnregister=findViewById(R.id.services);
         emailEditText=findViewById(R.id.textemail);
         passwordEditText=findViewById(R.id.textpassword);
+        confirmPasswordText=findViewById(R.id.textconfirmpassword);
 
         btnregister.setOnClickListener(e ->
 
                 {
                     String email=emailEditText.getText().toString().trim();
                     String password=passwordEditText.getText().toString().trim();
-                    if (email.isEmpty() && password.isEmpty())
+                    String confirmpassword=confirmPasswordText.getText().toString().trim();
+                    if (email.isEmpty() && password.isEmpty() || (!password.equals(confirmpassword)) || !isValidEmail(email))
                     {
                         Toast.makeText(this, "Email ou mot de passe invalide", Toast.LENGTH_SHORT).show();
                     }
@@ -52,10 +56,16 @@ public class SignUp extends AppCompatActivity {
                     {
                         new CheckEmailTask().execute(email, password);
                     }
+
                 }
         );
 
     }
+    boolean isValidEmail(String email) {
+        return Pattern.matches("^(?=.{1,64}@)[A-Za-z0-9_-]+(\\.[A-Za-z0-9_-]+)*@"
+                + "[^-][A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]{2,})$", email);
+    }
+
     private class CheckEmailTask extends AsyncTask<String, Void, Boolean> {
         private String[] params;
         @Override
@@ -94,7 +104,9 @@ public class SignUp extends AppCompatActivity {
             UserDAO userDao = userDatabase.userDao();
 
             // Create a new user and insert into the database
-            User newUser = new User(email, password);
+            User newUser = new User();
+            newUser.setEmail(email);
+            newUser.setPassword(password);
             userDao.insertOne(newUser);
 
             return null;
